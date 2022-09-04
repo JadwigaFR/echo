@@ -1,13 +1,14 @@
 # README
 
-This api has been created to fulfill Babbel's coding challenge. See `echo.md`.
+This api has been created to fulfill Babbel's coding challenge. See `echo.md` for requirements.
 
-## Dependencies
+## How to run the application
+### Dependencies
 - ruby 3.1.2
-- rails 7.0.x
+- rails 7.0.3
 - postgresl
 
-## How to set up
+### Get the application running
 - Install dependencies
     ```bash
     bundle install
@@ -25,7 +26,7 @@ This api has been created to fulfill Babbel's coding challenge. See `echo.md`.
   rails s
   ```
 
-## How to run the tests
+### Running the tests
 ```bash
 bundle exec rspec
 ```
