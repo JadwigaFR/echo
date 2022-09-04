@@ -11,20 +11,37 @@ class EndpointParamsSanitizer
 
   def call
     attributes = deep_compact(@params[:attributes])
+
     {
       verb: attributes[:verb]&.upcase,
-      path:,
+      path: path,
       response_code: attributes.dig(:response, :code),
-      response_body: JSON.parse(attributes.dig(:response, :body)),
-      response_headers: JSON.parse(attributes.dig(:response, :headers))
+      response_body: body,
+      response_headers: headers
     }.compact
   end
 
   def path
-    path_attr = @params[:attributes][:path]
+    path_attr = @params.dig(:attributes, :path)
     return nil unless path_attr
 
     path_attr[0] == '/' ? path_attr[(1..-1)] : path_attr
+  end
+
+  def headers
+    headers_attr = @params.dig(:attributes, :response, :headers)
+    return {} unless headers_attr
+    JSON.parse(headers_attr)
+  rescue JSON::ParserError
+    headers_attr
+  end
+
+  def body
+    body_attr = @params.dig(:attributes, :response, :body)
+    return unless body_attr
+    JSON.parse(body_attr)
+  rescue JSON::ParserError
+    body_attr
   end
 
   def deep_compact(hash)

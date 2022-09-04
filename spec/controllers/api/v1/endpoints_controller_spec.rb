@@ -3,7 +3,13 @@
 require 'rails_helper'
 
 describe API::V1::EndpointsController, type: :controller do
-  before { request.headers.merge!('Authorization' => "Bearer #{Rails.application.credentials.api_token}") }
+  before do
+    request.headers.merge!(
+      'Content-Type' => 'application/vnd.api+json',
+      'Accept' => 'application/vnd.api+json',
+      'Authorization' => "Bearer #{Rails.application.credentials.api_token}"
+    )
+  end
 
   shared_examples 'returns an invalid field error' do |field|
     it 'returns validation error' do
@@ -21,7 +27,7 @@ describe API::V1::EndpointsController, type: :controller do
           "response": {
             "code": 200,
             "headers": '{"a_key":"a_value"}',
-            "body": '{"message":"Hello, world"}'
+            "body": "\"{ \"message\": \"Hello, world\" }\""
           }
         }
       }
@@ -54,7 +60,7 @@ describe API::V1::EndpointsController, type: :controller do
   end
 
   describe '#create' do
-    subject(:response) { post :create, params: }
+    subject(:response) { post :create, params: params}
 
     include_examples 'includes content type headers'
     include_examples 'invalid authentication'
@@ -75,12 +81,12 @@ describe API::V1::EndpointsController, type: :controller do
         expect(endpoint.path).to eql('greeting')
         expect(endpoint.response_code).to eql(200)
         expect(endpoint.response_headers).to eql({ 'a_key' => 'a_value' })
-        expect(endpoint.response_body).to eql('{"message"=>"Hello, world"}')
+        expect(endpoint.response_body).to eql("\"{ \"message\": \"Hello, world\" }\"")
       end
     end
 
     context 'with only required valid params' do
-      before { params[:data][:attributes].merge!(response: { "code": 201, "headers": 'null', "body": 'null' }) }
+      before { params[:data][:attributes].merge!(response: { "code": 201, "headers": nil, "body": nil }) }
       include_examples 'returns correct status code', 201
       include_examples 'matches json schema', 'endpoint'
 
@@ -155,7 +161,7 @@ describe API::V1::EndpointsController, type: :controller do
           expect(endpoint.reload.path).to eql('greeting')
           expect(endpoint.reload.response_code).to eql(200)
           expect(endpoint.reload.response_headers).to eql({ 'a_key' => 'a_value' })
-          expect(endpoint.reload.response_body).to eql('{"message"=>"Hello, world"}')
+          expect(endpoint.reload.response_body).to eql("\"{ \"message\": \"Hello, world\" }\"")
         end
       end
 

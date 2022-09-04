@@ -9,7 +9,7 @@ class CreateEndpoints < ActiveRecord::Migration[7.0]
       t.json :response_headers, default: {}
       t.text :response_body
 
-      t.index %i[path verb]
+      t.index %i[path verb], unique: true
 
       t.timestamps
     end

@@ -22,7 +22,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_04_070913) do
     t.text "response_body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["path", "verb"], name: "index_endpoints_on_path_and_verb"
+    t.index ["path", "verb"], name: "index_endpoints_on_path_and_verb", unique: true
   end
 
 end
