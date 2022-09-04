@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe API::V1::EndpointsController, type: :controller do
+  before { request.headers.merge!('Authorization' => "Bearer #{Rails.application.credentials.api_token}") }
+
   shared_examples 'returns an invalid field error' do |field|
     it 'returns validation error' do
       expect(response_json['errors'].first['title']).to eql("Invalid #{field}")
@@ -29,6 +31,7 @@ describe API::V1::EndpointsController, type: :controller do
   describe '#index' do
     subject(:response) { get :index }
     include_examples 'includes content type headers'
+    include_examples 'invalid authentication'
 
     context 'when there are no endpoints to list' do
       include_examples 'matches json schema', 'endpoints'
@@ -54,6 +57,7 @@ describe API::V1::EndpointsController, type: :controller do
     subject(:response) { post :create, params: }
 
     include_examples 'includes content type headers'
+    include_examples 'invalid authentication'
 
     context 'with valid params' do
       include_examples 'returns correct status code', 201
@@ -139,6 +143,7 @@ describe API::V1::EndpointsController, type: :controller do
     context 'when the endpoint exists' do
       let!(:endpoint) { create(:endpoint, :post) }
       before { params.merge!(id: endpoint.id) }
+      include_examples 'invalid authentication'
       include_examples 'includes content type headers'
       context 'with valid params' do
         include_examples 'matches json schema', 'endpoint'
@@ -171,6 +176,7 @@ describe API::V1::EndpointsController, type: :controller do
     subject(:response) { delete :destroy, params: }
     context 'when no matching endpoint is found' do
       before { params.merge!(id: '1') }
+      include_examples 'invalid authentication'
       include_examples 'matches json schema', 'errors'
       include_examples 'returns correct status code', 404
 

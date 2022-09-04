@@ -6,6 +6,6 @@ Rails.application.routes.draw do
       resources :endpoints, only: %i[index create update destroy]
     end
 
-    match '*path', to: 'dynamic_endpoints#dispatch_request', via: [:get, :post, :put, :patch, :delete]
+    match '*path', to: 'dynamic_endpoints#dispatch_request', via: %i[get post put patch delete]
   end
 end

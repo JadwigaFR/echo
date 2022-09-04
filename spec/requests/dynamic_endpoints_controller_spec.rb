@@ -3,17 +3,19 @@
 require 'rails_helper'
 
 describe API::DynamicEndpointsController, type: :request do
+  let(:header) { { 'Authorization' => "Bearer #{Rails.application.credentials.api_token}" } }
+
   shared_examples 'can access dynamic endpoint' do |verb, path|
     let!(:endpoint) do
       create(:endpoint,
              verb: verb.to_s.upcase,
-             path: path,
+             path:,
              response_code: 410,
              response_body: '{"message"=>"I am gone"}',
              response_headers: { 'Gone-status' => 'never-to-return' })
     end
 
-    before { send verb.to_sym, "/#{path}", params: { path: path } }
+    before { send verb.to_sym, "/#{path}", params: { path: }, headers: header }
 
     it 'returns the correct headers' do
       expect(headers['Gone-status']).to eql('never-to-return')
@@ -63,7 +65,7 @@ describe API::DynamicEndpointsController, type: :request do
                response_headers: { 'Gone-status' => 'never-to-return' })
       end
 
-      before { post '/test-path', params: { path: 'test-path' } }
+      before { post '/test-path', params: { path: 'test-path' }, headers: header }
       include_examples 'matches json schema', 'errors'
       include_examples 'includes content type headers'
 
@@ -73,7 +75,7 @@ describe API::DynamicEndpointsController, type: :request do
     end
 
     context 'when the endpoint can\'t be found' do
-      before { post '/no-exist', params: { path: 'no-exist' } }
+      before { post '/no-exist', params: { path: 'no-exist' }, headers: header }
       include_examples 'matches json schema', 'errors'
       include_examples 'includes content type headers'
 
