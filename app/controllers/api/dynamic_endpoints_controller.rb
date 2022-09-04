@@ -3,30 +3,24 @@
 module API
   class DynamicEndpointsController < ApplicationController
     before_action :find_endpoint
+    before_action :set_headers
 
     def dispatch_request
-      # binding.pry
-      case @endpoint.verb
-      when 'GET'
-        handle_get_request
-      end
-    end
-
-    def handle_get_request
-      @endpoint.response_headers.each do |key, value|
-        response.set_header(key, value)
-      end
-
-      # binding.pry
       render json: @endpoint.response_body, status: @endpoint.response_code
     end
 
     private
 
+    def set_headers
+      @endpoint.response_headers.each do |key, value|
+        response.set_header(key, value)
+      end
+    end
+
     def find_endpoint
       verb = request.request_method
       path = params[:path]
-      # binding.pry
+
       @endpoint = Endpoint.find_by!(path:, verb:)
     end
 

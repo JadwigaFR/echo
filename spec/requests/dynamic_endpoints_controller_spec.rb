@@ -3,36 +3,57 @@
 require 'rails_helper'
 
 describe API::DynamicEndpointsController, type: :request do
-  describe 'GET requests' do
-    context 'when the endpoint exist' do
-      let!(:endpoint) do
-        create(:endpoint,
-               verb: 'GET',
-               path: 'test-path',
-               response_code: 410,
-               response_body: '{"message"=>"I am gone"}',
-               response_headers: { 'Gone-status' => 'never-to-return' })
-      end
-
-      before { get '/test-path', params: { path: 'test-path' } }
-
-      it 'returns the correct headers' do
-        subject
-        expect(headers['Gone-status']).to eql('never-to-return')
-      end
-
-      it 'responds with the correct response_code' do
-        subject
-        expect(response.status).to eq(410)
-      end
-
-      it 'responds with the correct body' do
-        subject
-        expect(response.body).to eq('{"message"=>"I am gone"}')
-      end
+  shared_examples 'can access dynamic endpoint' do |verb, path|
+    let!(:endpoint) do
+      create(:endpoint,
+             verb: verb.to_s.upcase,
+             path: path,
+             response_code: 410,
+             response_body: '{"message"=>"I am gone"}',
+             response_headers: { 'Gone-status' => 'never-to-return' })
     end
 
-    context 'with the wrong verb' do
+    before { send verb.to_sym, "/#{path}", params: { path: path } }
+
+    it 'returns the correct headers' do
+      expect(headers['Gone-status']).to eql('never-to-return')
+    end
+
+    it 'responds with the correct response_code' do
+      expect(response.status).to eq(410)
+    end
+
+    it 'responds with the correct body' do
+      expect(response.body).to eq('{"message"=>"I am gone"}')
+    end
+  end
+
+  context 'with a get endpoint' do
+    include_examples 'can access dynamic endpoint', :get, 'get-test-path'
+  end
+
+  context 'with a post endpoint' do
+    include_examples 'can access dynamic endpoint', :post, 'post-test-path'
+  end
+
+  context 'with a delete endpoint' do
+    include_examples 'can access dynamic endpoint', :delete, 'delete-test-path'
+  end
+
+  context 'with a put endpoint' do
+    include_examples 'can access dynamic endpoint', :put, 'put-test-path'
+  end
+
+  context 'with a nested path' do
+    include_examples 'can access dynamic endpoint', :get, 'get/test/path'
+  end
+
+  context 'with a v1 nested path' do
+    include_examples 'can access dynamic endpoint', :get, 'v1/get/test/path'
+  end
+
+  context 'when the endpoint is not found' do
+    context 'because of using the wrong http verb' do
       let!(:endpoint) do
         create(:endpoint,
                verb: 'GET',
