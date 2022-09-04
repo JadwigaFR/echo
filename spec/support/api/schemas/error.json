@@ -1,0 +1,27 @@
+{
+  "definitions": {
+    "error": {
+      "type": "object",
+      "required": [
+        "detail"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object"
+        }
+      }, "additionalProperties": false
+    }
+  }
+}

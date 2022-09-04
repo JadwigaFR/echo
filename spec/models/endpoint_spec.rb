@@ -14,6 +14,11 @@ describe Endpoint, type: :model do
       it { is_expected.not_to be_valid }
     end
 
+     context 'with an invalid response code' do
+      subject(:endpoint) { Endpoint.new(verb: 'DO', path: '/path', response_code: 666) }
+      it { is_expected.not_to be_valid }
+    end
+
     context 'without a verb' do
       subject(:endpoint) { Endpoint.new(path: '/path', response_code: 200) }
       it { is_expected.not_to be_valid }

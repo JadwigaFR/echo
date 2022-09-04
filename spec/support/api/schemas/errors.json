@@ -1,11 +1,13 @@
 {
   "type": "object",
-  "required": ["data", "jsonapi"],
+  "required": [
+    "errors"
+  ],
   "properties": {
-    "data": {
+    "errors": {
       "type": "array",
       "items": {
-        "$ref": "endpoint.json#/definitions/endpoint"
+        "$ref": "error.json#/definitions/error"
       }
     },
     "jsonapi": {

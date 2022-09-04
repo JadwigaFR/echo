@@ -1,9 +1,12 @@
 {
   "type": "object",
-  "required": ["endpoint"],
+  "required": ["data", "jsonapi"],
   "properties": {
-    "endpoint" : {
-      "$ref": "#/definitions/endpoint"
+    "data": {
+      "$ref": "endpoint.json#/definitions/endpoint"
+    },
+    "jsonapi": {
+      "$ref": "jsonapi.json"
     }
   },
   "definitions": {
@@ -12,7 +15,7 @@
       "required" : ["id", "type", "attributes"],
       "properties" : {
         "id": { "type": "string" },
-        "type": { "type": "string", "default": "endpoint"},
+        "type": { "type": "string", "default": "endpoints"},
         "attributes": {
           "type":  "object",
           "required": ["verb", "path", "response"],
@@ -25,7 +28,7 @@
               "properties": {
                 "code": { "type": "integer" },
                 "body": {"type":  ["string", "null"] },
-                "headers": { "type": ["object", "null"] }
+                "headers": { "type": ["object"] }
               }
             }
           }, "additionalProperties": false

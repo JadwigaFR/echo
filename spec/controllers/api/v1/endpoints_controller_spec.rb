@@ -21,6 +21,12 @@ describe API::V1::EndpointsController, type: :controller do
     end
   end
 
+  shared_examples 'returns an invalid field error' do |field|
+    it 'returns validation error' do
+      expect(response_json['errors'].first['title']).to eql("Invalid #{field}")
+    end
+  end
+
   describe '#index' do
     subject(:response) { get :index }
     include_examples 'includes correct headers'
@@ -41,6 +47,91 @@ describe API::V1::EndpointsController, type: :controller do
 
       it 'returns all the endpoints' do
         expect(response_json['data'].count).to eql(5)
+      end
+    end
+  end
+
+  describe '#create' do
+    subject(:response) { post :create, params: }
+    let(:params) do
+      {
+        "data": {
+          "type": 'endpoints',
+          "attributes": {
+            "verb": 'GET',
+            "path": '/greeting',
+            "response": {
+              "code": 200,
+              "headers": '{"a_key":"a_value"}',
+              "body": '{"message":"Hello, world"}'
+            }
+          }
+        }
+      }
+    end
+
+    include_examples 'includes correct headers'
+
+    context 'with valid params' do
+      include_examples 'returns correct status code', 201
+      include_examples 'matches json schema', 'endpoint'
+
+      it 'assigns endpoint attributes based on params' do
+        response
+
+        endpoint = Endpoint.last
+        expect(endpoint.verb).to eql('GET')
+        expect(endpoint.path).to eql('/greeting')
+        expect(endpoint.response_code).to eql(200)
+        expect(endpoint.response_headers).to eql({ 'a_key' => 'a_value' })
+        expect(endpoint.response_body).to eql('{"message"=>"Hello, world"}')
+      end
+    end
+
+    context 'with only required valid params' do
+      before { params[:data][:attributes].merge!(response: { "code": 201, "headers": 'null', "body": 'null' }) }
+      include_examples 'returns correct status code', 201
+      include_examples 'matches json schema', 'endpoint'
+
+      it 'assigns default values for null attributes' do
+        response
+
+        endpoint = Endpoint.last
+        expect(endpoint.verb).to eql('GET')
+        expect(endpoint.path).to eql('/greeting')
+        expect(endpoint.response_code).to eql(201)
+        expect(endpoint.response_headers).to eql({})
+        expect(endpoint.response_body).to eql(nil)
+      end
+    end
+
+    context 'with invalid params' do
+      context 'when verb is invalid' do
+        before { params[:data][:attributes].merge!(verb: 'DO') }
+        include_examples 'matches json schema', 'errors'
+        include_examples'returns an invalid field error', 'verb'
+        include_examples 'returns correct status code', 400
+      end
+
+      context 'when response_code is invalid' do
+        before { params[:data][:attributes].merge!(response: { "code": 666, "headers": 'null', "body": 'null' }) }
+        include_examples 'matches json schema', 'errors'
+        include_examples'returns an invalid field error', 'response_code'
+        include_examples 'returns correct status code', 400
+      end
+
+      context 'when response_code is missing' do
+        before { params[:data][:attributes].merge!(response: { "code": 'null', "headers": 'null', "body": 'null' }) }
+        include_examples 'matches json schema', 'errors'
+        include_examples'returns an invalid field error', 'response_code'
+        include_examples 'returns correct status code', 400
+      end
+
+      context 'when response_code is missing' do
+        before { params[:data][:attributes].merge!(verb: 'null') }
+        include_examples 'matches json schema', 'errors'
+        include_examples'returns an invalid field error', 'verb'
+        include_examples 'returns correct status code', 400
       end
     end
   end
