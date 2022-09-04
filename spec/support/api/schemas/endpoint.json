@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "required": ["endpoint"],
+  "properties": {
+    "endpoint" : {
+      "$ref": "#/definitions/endpoint"
+    }
+  },
+  "definitions": {
+    "endpoint": {
+      "type" : "object",
+      "required" : ["id", "type", "attributes"],
+      "properties" : {
+        "id": { "type": "string" },
+        "type": { "type": "string", "default": "endpoint"},
+        "attributes": {
+          "type":  "object",
+          "required": ["verb", "path", "response"],
+          "properties": {
+            "verb" : { "type" : "string" },
+            "path" : { "type" : "string" },
+            "response" : {
+              "type" : "object",
+              "required": ["code", "body", "headers"],
+              "properties": {
+                "code": { "type": "integer" },
+                "body": {"type":  ["string", "null"] },
+                "headers": { "type": ["object", "null"] }
+              }
+            }
+          }, "additionalProperties": false
+        }
+      },"additionalProperties": false
+    }
+  }
+}

@@ -6,6 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.1.2'
 
 gem 'bootsnap', require: false
+gem 'jsonapi-rails'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 5.0'
 gem 'rails', '~> 7.0.3', '>= 7.0.3.1'
@@ -18,6 +19,7 @@ end
 group :test do
   gem 'factory_bot_rails'
   gem 'faker'
+  gem 'json-schema'
 end
 
 group :development do

@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "required": ["data", "jsonapi"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "endpoint.json#/definitions/endpoint"
+      }
+    },
+    "jsonapi": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": { "type": "string" }
+      }
+    }
+  }
+}
