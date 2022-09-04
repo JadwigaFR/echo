@@ -3,7 +3,6 @@
 module API
   module V1
     class EndpointsController < ApplicationController
-      before_action :set_content_type_header, only: %w[index create update]
       before_action :find_endpoint, only: %w[update destroy]
 
       def index
@@ -46,10 +45,6 @@ module API
           code: 'not_found',
           detail: "Requested Endpoint with ID `#{params[:id]}` does not exist"
         }, status: 404
-      end
-
-      def set_content_type_header
-        response.headers['Content-Type'] = 'application/vnd.api+json'
       end
 
       def find_endpoint

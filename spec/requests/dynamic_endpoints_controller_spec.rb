@@ -65,6 +65,8 @@ describe API::DynamicEndpointsController, type: :request do
 
       before { post '/test-path', params: { path: 'test-path' } }
       include_examples 'matches json schema', 'errors'
+      include_examples 'includes content type headers'
+
       it 'returns not found error' do
         expect(response_json['errors'].first['code']).to eql('not_found')
       end
@@ -73,6 +75,8 @@ describe API::DynamicEndpointsController, type: :request do
     context 'when the endpoint can\'t be found' do
       before { post '/no-exist', params: { path: 'no-exist' } }
       include_examples 'matches json schema', 'errors'
+      include_examples 'includes content type headers'
+
       it 'returns not found error' do
         expect(response_json['errors'].first['code']).to eql('not_found')
       end

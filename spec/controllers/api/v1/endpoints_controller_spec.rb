@@ -3,12 +3,6 @@
 require 'rails_helper'
 
 describe API::V1::EndpointsController, type: :controller do
-  shared_examples 'includes content type headers' do
-    it 'includes jsonapi type in response\'s headers' do
-      expect(response.headers['Content-Type']).to eql('application/vnd.api+json')
-    end
-  end
-
   shared_examples 'returns an invalid field error' do |field|
     it 'returns validation error' do
       expect(response_json['errors'].first['title']).to eql("Invalid #{field}")
