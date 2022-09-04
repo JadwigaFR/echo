@@ -1,24 +1,31 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This api has been created to fulfill Babbel's coding challenge. See `echo.md`.
 
-Things you may want to cover:
+## Dependencies
+- ruby 3.1.2
+- rails 7.0.x
+- postgresl
 
-* Ruby version
+## How to set up
+- Install dependencies
+    ```bash
+    bundle install
+    ```
+- Configure database (copy sample file and replace values)
+    ```bash
+    cp config/database.sample.yml config/database.yml
+    ```
+- Create and migrate database
+  ```bash
+  rails db:create rails db:migrate
+  ```
+- Get the server running
+  ```bash
+  rails s
+  ```
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## How to run the tests
+```bash
+bundle exec rspec
+```
