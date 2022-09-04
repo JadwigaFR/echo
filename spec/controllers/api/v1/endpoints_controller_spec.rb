@@ -74,7 +74,7 @@ describe API::V1::EndpointsController, type: :controller do
 
         endpoint = Endpoint.last
         expect(endpoint.verb).to eql('GET')
-        expect(endpoint.path).to eql('/greeting')
+        expect(endpoint.path).to eql('greeting')
         expect(endpoint.response_code).to eql(200)
         expect(endpoint.response_headers).to eql({ 'a_key' => 'a_value' })
         expect(endpoint.response_body).to eql('{"message"=>"Hello, world"}')
@@ -91,7 +91,7 @@ describe API::V1::EndpointsController, type: :controller do
 
         endpoint = Endpoint.last
         expect(endpoint.verb).to eql('GET')
-        expect(endpoint.path).to eql('/greeting')
+        expect(endpoint.path).to eql('greeting')
         expect(endpoint.response_code).to eql(201)
         expect(endpoint.response_headers).to eql({})
         expect(endpoint.response_body).to eql(nil)
@@ -130,7 +130,7 @@ describe API::V1::EndpointsController, type: :controller do
   end
 
   describe '#update' do
-    subject(:response) { put :update, params: params }
+    subject(:response) { put :update, params: }
     context 'when no matching endpoint is found' do
       include_examples 'includes content type headers'
       before { params.merge!(id: '1') }
@@ -138,7 +138,7 @@ describe API::V1::EndpointsController, type: :controller do
       include_examples 'returns correct status code', 404
 
       it 'returns not found error' do
-        expect(response_json['errors'].first['code']).to eql("not_found")
+        expect(response_json['errors'].first['code']).to eql('not_found')
       end
     end
 
@@ -153,7 +153,7 @@ describe API::V1::EndpointsController, type: :controller do
           response
 
           expect(endpoint.reload.verb).to eql('GET')
-          expect(endpoint.reload.path).to eql('/greeting')
+          expect(endpoint.reload.path).to eql('greeting')
           expect(endpoint.reload.response_code).to eql(200)
           expect(endpoint.reload.response_headers).to eql({ 'a_key' => 'a_value' })
           expect(endpoint.reload.response_body).to eql('{"message"=>"Hello, world"}')
@@ -174,14 +174,14 @@ describe API::V1::EndpointsController, type: :controller do
   end
 
   describe '#destroy' do
-    subject(:response) { delete :destroy, params: params }
+    subject(:response) { delete :destroy, params: }
     context 'when no matching endpoint is found' do
       before { params.merge!(id: '1') }
       include_examples 'matches json schema', 'errors'
       include_examples 'returns correct status code', 404
 
       it 'returns not found error' do
-        expect(response_json['errors'].first['code']).to eql("not_found")
+        expect(response_json['errors'].first['code']).to eql('not_found')
       end
     end
 

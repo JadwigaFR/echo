@@ -13,10 +13,10 @@ module API
       end
 
       def create
-        endpoint = Endpoint.new(sanitized_endpoint_params.compact)
+        endpoint = Endpoint.new(sanitized_endpoint_params)
 
         if endpoint.save
-          response.headers['Location'] = "#{request.base_url}#{endpoint.path}"
+          response.headers['Location'] = "#{request.base_url}/#{endpoint.path}"
           render jsonapi: endpoint, status: 201
         else
           render jsonapi_errors: endpoint.errors, status: 400
@@ -56,31 +56,12 @@ module API
         @endpoint = Endpoint.find(params[:id])
       end
 
+      def sanitized_endpoint_params
+        EndpointParamsSanitizer.call(endpoint_params)
+      end
+
       def endpoint_params
         params.require(:data).permit({ attributes: [:verb, :path, { response: %i[code headers body] }] })
-      end
-
-      def sanitized_endpoint_params
-        attributes = deep_compact(endpoint_params[:attributes])
-        verb = attributes[:verb][-0] == '/' ? attributes[:verb] : attributes[:verb][(0..-1)]
-
-        # TODO:
-        # extract in a service
-        # add tests
-        {
-          verb: verb,
-          path: attributes[:path],
-          response_code: attributes.dig(:response, :code),
-          response_body: JSON.parse(attributes.dig(:response, :body)),
-          response_headers: JSON.parse(attributes.dig(:response, :headers))
-        }
-      end
-
-      def deep_compact(hash)
-        hash.compact.transform_values do |value|
-          next value unless value.class == Hash
-          deep_compact(value)
-        end.reject { |_k, v| v.empty? || v == 'null'}
       end
     end
   end
