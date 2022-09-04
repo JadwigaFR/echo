@@ -27,6 +27,23 @@ describe API::V1::EndpointsController, type: :controller do
     end
   end
 
+  let(:params) do
+    {
+      "data": {
+        "type": 'endpoints',
+        "attributes": {
+          "verb": 'GET',
+          "path": '/greeting',
+          "response": {
+            "code": 200,
+            "headers": '{"a_key":"a_value"}',
+            "body": '{"message":"Hello, world"}'
+          }
+        }
+      }
+    }
+  end
+
   describe '#index' do
     subject(:response) { get :index }
     include_examples 'includes correct headers'
@@ -53,22 +70,6 @@ describe API::V1::EndpointsController, type: :controller do
 
   describe '#create' do
     subject(:response) { post :create, params: }
-    let(:params) do
-      {
-        "data": {
-          "type": 'endpoints',
-          "attributes": {
-            "verb": 'GET',
-            "path": '/greeting',
-            "response": {
-              "code": 200,
-              "headers": '{"a_key":"a_value"}',
-              "body": '{"message":"Hello, world"}'
-            }
-          }
-        }
-      }
-    end
 
     include_examples 'includes correct headers'
 
@@ -109,29 +110,69 @@ describe API::V1::EndpointsController, type: :controller do
       context 'when verb is invalid' do
         before { params[:data][:attributes].merge!(verb: 'DO') }
         include_examples 'matches json schema', 'errors'
-        include_examples'returns an invalid field error', 'verb'
+        include_examples 'returns an invalid field error', 'verb'
         include_examples 'returns correct status code', 400
       end
 
       context 'when response_code is invalid' do
         before { params[:data][:attributes].merge!(response: { "code": 666, "headers": 'null', "body": 'null' }) }
         include_examples 'matches json schema', 'errors'
-        include_examples'returns an invalid field error', 'response_code'
+        include_examples 'returns an invalid field error', 'response_code'
         include_examples 'returns correct status code', 400
       end
 
       context 'when response_code is missing' do
         before { params[:data][:attributes].merge!(response: { "code": 'null', "headers": 'null', "body": 'null' }) }
         include_examples 'matches json schema', 'errors'
-        include_examples'returns an invalid field error', 'response_code'
+        include_examples 'returns an invalid field error', 'response_code'
         include_examples 'returns correct status code', 400
       end
 
       context 'when response_code is missing' do
         before { params[:data][:attributes].merge!(verb: 'null') }
         include_examples 'matches json schema', 'errors'
-        include_examples'returns an invalid field error', 'verb'
+        include_examples 'returns an invalid field error', 'verb'
         include_examples 'returns correct status code', 400
+      end
+    end
+  end
+
+  describe '#update' do
+    subject(:response) { put :update, params: params }
+    context 'when no matching endpoint is found' do
+      before { params.merge!(id: '1') }
+      include_examples 'matches json schema', 'errors'
+      include_examples 'returns correct status code', 404
+
+      it 'returns not found error' do
+        expect(response_json['errors'].first['code']).to eql("not_found")
+      end
+    end
+
+    context 'when the endpoint exists' do
+      let!(:endpoint) { create(:endpoint, :post) }
+      before { params.merge!(id: endpoint.id) }
+      context 'with valid params' do
+        it 'updates the endpoint\'s attributes' do
+          response
+
+          expect(endpoint.reload.verb).to eql('GET')
+          expect(endpoint.reload.path).to eql('/greeting')
+          expect(endpoint.reload.response_code).to eql(200)
+          expect(endpoint.reload.response_headers).to eql({ 'a_key' => 'a_value' })
+          expect(endpoint.reload.response_body).to eql('{"message"=>"Hello, world"}')
+        end
+      end
+
+      context 'with invalid params' do
+        before { params[:data][:attributes].merge!(verb: 'DO') }
+        include_examples 'matches json schema', 'errors'
+        include_examples 'returns an invalid field error', 'verb'
+        include_examples 'returns correct status code', 400
+
+        it 'doesn\'t update the endpoint' do
+          expect{ response }.not_to change(endpoint, :verb)
+        end
       end
     end
   end

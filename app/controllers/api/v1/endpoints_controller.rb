@@ -3,7 +3,9 @@
 module API
   module V1
     class EndpointsController < ApplicationController
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       before_action :set_headers
+      before_action :find_endpoint, only: %w[update]
 
       def index
         @endpoints = Endpoint.all
@@ -21,10 +23,31 @@ module API
         end
       end
 
+      def update
+        @endpoint.update(sanitized_endpoint_params)
+        # binding.pry
+        if @endpoint.save
+          render jsonapi: @endpoint, status: 200
+        else
+          render jsonapi_errors: @endpoint.errors, status: 400
+        end
+      end
+
       private
+
+      def record_not_found
+        render jsonapi_errors: {
+          code: 'not_found',
+          detail: "Requested Endpoint with ID `#{params[:id]}` does not exist"
+        }, status: 404
+      end
 
       def set_headers
         response.headers['Content-Type'] = 'application/vnd.api+json'
+      end
+
+      def find_endpoint
+        @endpoint = Endpoint.find(params[:id])
       end
 
       def endpoint_params
