@@ -4,8 +4,9 @@ module API
   module V1
     class EndpointsController < ApplicationController
       rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
-      before_action :set_headers
-      before_action :find_endpoint, only: %w[update]
+      before_action :set_content_type_header, only: %w[index update destroy]
+      # before_action :set_accept_type_header
+      before_action :find_endpoint, only: %w[update destroy]
 
       def index
         @endpoints = Endpoint.all
@@ -17,6 +18,7 @@ module API
         endpoint = Endpoint.new(sanitized_endpoint_params.compact)
 
         if endpoint.save
+          response.headers['Location'] = "#{request.base_url}#{endpoint.path}"
           render jsonapi: endpoint, status: 201
         else
           render jsonapi_errors: endpoint.errors, status: 400
@@ -25,12 +27,18 @@ module API
 
       def update
         @endpoint.update(sanitized_endpoint_params)
-        # binding.pry
+
         if @endpoint.save
           render jsonapi: @endpoint, status: 200
         else
           render jsonapi_errors: @endpoint.errors, status: 400
         end
+      end
+
+      def destroy
+        @endpoint.destroy
+
+        render jsonapi: nil, status: 204
       end
 
       private
@@ -42,7 +50,7 @@ module API
         }, status: 404
       end
 
-      def set_headers
+      def set_content_type_header
         response.headers['Content-Type'] = 'application/vnd.api+json'
       end
 
@@ -60,7 +68,7 @@ module API
         {
           verb: attributes[:verb],
           path: attributes[:path],
-          response_code: JSON.parse(attributes.dig(:response, :code)),
+          response_code: attributes.dig(:response, :code),
           response_body: JSON.parse(attributes.dig(:response, :body)),
           response_headers: JSON.parse(attributes.dig(:response, :headers))
         }

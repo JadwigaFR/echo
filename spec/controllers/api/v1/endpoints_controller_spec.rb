@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe API::V1::EndpointsController, type: :controller do
-  shared_examples 'includes correct headers' do
+  shared_examples 'includes content type headers' do
     it 'includes jsonapi type in response\'s headers' do
       expect(response.headers['Content-Type']).to eql('application/vnd.api+json')
     end
@@ -46,7 +46,7 @@ describe API::V1::EndpointsController, type: :controller do
 
   describe '#index' do
     subject(:response) { get :index }
-    include_examples 'includes correct headers'
+    include_examples 'includes content type headers'
 
     context 'when there are no endpoints to list' do
       include_examples 'matches json schema', 'endpoints'
@@ -71,11 +71,15 @@ describe API::V1::EndpointsController, type: :controller do
   describe '#create' do
     subject(:response) { post :create, params: }
 
-    include_examples 'includes correct headers'
+    include_examples 'includes content type headers'
 
     context 'with valid params' do
       include_examples 'returns correct status code', 201
       include_examples 'matches json schema', 'endpoint'
+
+      it 'includes location headers' do
+        expect(response.headers['Location']).to eql('http://test.host/greeting')
+      end
 
       it 'assigns endpoint attributes based on params' do
         response
@@ -140,6 +144,7 @@ describe API::V1::EndpointsController, type: :controller do
   describe '#update' do
     subject(:response) { put :update, params: params }
     context 'when no matching endpoint is found' do
+      include_examples 'includes content type headers'
       before { params.merge!(id: '1') }
       include_examples 'matches json schema', 'errors'
       include_examples 'returns correct status code', 404
@@ -152,7 +157,10 @@ describe API::V1::EndpointsController, type: :controller do
     context 'when the endpoint exists' do
       let!(:endpoint) { create(:endpoint, :post) }
       before { params.merge!(id: endpoint.id) }
+      include_examples 'includes content type headers'
       context 'with valid params' do
+        include_examples 'matches json schema', 'endpoint'
+        include_examples 'returns correct status code', 200
         it 'updates the endpoint\'s attributes' do
           response
 
@@ -171,8 +179,38 @@ describe API::V1::EndpointsController, type: :controller do
         include_examples 'returns correct status code', 400
 
         it 'doesn\'t update the endpoint' do
-          expect{ response }.not_to change(endpoint, :verb)
+          expect { response }.not_to change(endpoint, :verb)
         end
+      end
+    end
+  end
+
+  describe '#destroy' do
+    subject(:response) { delete :destroy, params: params }
+    context 'when no matching endpoint is found' do
+      before { params.merge!(id: '1') }
+      include_examples 'includes content type headers'
+      include_examples 'matches json schema', 'errors'
+      include_examples 'returns correct status code', 404
+
+      it 'returns not found error' do
+        expect(response_json['errors'].first['code']).to eql("not_found")
+      end
+    end
+
+    context 'when the endpoint exists' do
+      let!(:endpoint) { create(:endpoint) }
+      before { params.merge!(id: endpoint.id) }
+      include_examples 'returns correct status code', 204
+      it 'destroys the endpoint' do
+        endpoint_id = endpoint.id
+        response
+
+        expect(Endpoint.find_by_id(endpoint_id)).to be_nil
+      end
+
+      it 'returns an empty response' do
+        expect(response_json['data']).to be_nil
       end
     end
   end
