@@ -21,7 +21,7 @@ FactoryBot.define do
     end
 
     trait :delete do
-      verb { 'PUT' }
+      verb { 'DELETE' }
       response_code { 200 }
     end
 

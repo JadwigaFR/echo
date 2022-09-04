@@ -27,7 +27,7 @@ describe API::V1::EndpointsController, type: :controller do
           "response": {
             "code": 200,
             "headers": '{"a_key":"a_value"}',
-            "body": "\"{ \"message\": \"Hello, world\" }\""
+            "body": '"{ "message": "Hello, world" }"'
           }
         }
       }
@@ -51,16 +51,18 @@ describe API::V1::EndpointsController, type: :controller do
     context 'when there are endpoints to list' do
       include_examples 'matches json schema', 'endpoints'
       include_examples 'returns correct status code', 200
-      let!(:endpoint) { create_list(:endpoint, 5) }
-
       it 'returns all the endpoints' do
-        expect(response_json['data'].count).to eql(5)
+        create(:endpoint)
+        create(:endpoint, :post)
+        create(:endpoint, :delete)
+        create(:endpoint, :put)
+        expect(response_json['data'].count).to eql(4)
       end
     end
   end
 
   describe '#create' do
-    subject(:response) { post :create, params: params}
+    subject(:response) { post :create, params: }
 
     include_examples 'includes content type headers'
     include_examples 'invalid authentication'
@@ -81,7 +83,7 @@ describe API::V1::EndpointsController, type: :controller do
         expect(endpoint.path).to eql('greeting')
         expect(endpoint.response_code).to eql(200)
         expect(endpoint.response_headers).to eql({ 'a_key' => 'a_value' })
-        expect(endpoint.response_body).to eql("\"{ \"message\": \"Hello, world\" }\"")
+        expect(endpoint.response_body).to eql('"{ "message": "Hello, world" }"')
       end
     end
 
@@ -161,7 +163,7 @@ describe API::V1::EndpointsController, type: :controller do
           expect(endpoint.reload.path).to eql('greeting')
           expect(endpoint.reload.response_code).to eql(200)
           expect(endpoint.reload.response_headers).to eql({ 'a_key' => 'a_value' })
-          expect(endpoint.reload.response_body).to eql("\"{ \"message\": \"Hello, world\" }\"")
+          expect(endpoint.reload.response_body).to eql('"{ "message": "Hello, world" }"')
         end
       end
 

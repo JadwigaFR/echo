@@ -1,6 +1,13 @@
 # README
 
 This api has been created to fulfill Babbel's coding challenge. See `echo.md` for requirements.
+It was a fun challenge to fulfill!
+
+Given more time I would:
+- add tests for the service
+- add proper api documentation with swagger, re-using the json schema files used for schema validation
+- dockerize the application
+- investigate how to handle less common HTTP verb (CONNECT OPTIONS TRACE)
 
 ## How to run the application
 ### Dependencies
@@ -62,7 +69,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
     GET /endpoints HTTP/1.1
     Accept: application/vnd.api+json
 
-#### Expected response
+#### Response
 
     HTTP/1.1 200 OK
     Content-Type: application/vnd.api+json
@@ -111,7 +118,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
         }
     }
 
-#### Expected response
+#### Response
 
     HTTP/1.1 201 Created
     Location: http://example.com/greeting
@@ -161,7 +168,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
     }
 
 
-#### Expected response
+#### Response
 
     HTTP/1.1 200 OK
     Content-Type: application/vnd.api+json
@@ -192,7 +199,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
     DELETE /endpoints/12345 HTTP/1.1
     Accept: application/vnd.api+json
 
-#### Expected response
+#### Response
 
     HTTP/1.1 204 No Content
   </markdown>
@@ -202,14 +209,14 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
   <summary>Error response</summary>
   <markdown>
 In case client makes unexpected response or server encountered an internal
-problem, Echo should provide proper error response.
+problem, the api will provide an error response.
 
 #### Request
 
     DELETE /endpoints/1234567890 HTTP/1.1
     Accept: application/vnd.api+json
 
-#### Expected response
+#### Response
 
     HTTP/1.1 404 Not found
     Content-Type: application/vnd.api+json

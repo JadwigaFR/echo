@@ -31,6 +31,7 @@ class EndpointParamsSanitizer
   def headers
     headers_attr = @params.dig(:attributes, :response, :headers)
     return {} unless headers_attr
+
     JSON.parse(headers_attr)
   rescue JSON::ParserError
     headers_attr
@@ -39,6 +40,7 @@ class EndpointParamsSanitizer
   def body
     body_attr = @params.dig(:attributes, :response, :body)
     return unless body_attr
+
     JSON.parse(body_attr)
   rescue JSON::ParserError
     body_attr
