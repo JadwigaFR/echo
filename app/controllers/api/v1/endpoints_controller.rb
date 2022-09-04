@@ -3,9 +3,7 @@
 module API
   module V1
     class EndpointsController < ApplicationController
-      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
-      before_action :set_content_type_header, only: %w[index update destroy]
-      # before_action :set_accept_type_header
+      before_action :set_content_type_header, only: %w[index create update]
       before_action :find_endpoint, only: %w[update destroy]
 
       def index
@@ -64,9 +62,13 @@ module API
 
       def sanitized_endpoint_params
         attributes = deep_compact(endpoint_params[:attributes])
+        verb = attributes[:verb][-0] == '/' ? attributes[:verb] : attributes[:verb][(0..-1)]
 
+        # TODO:
+        # extract in a service
+        # add tests
         {
-          verb: attributes[:verb],
+          verb: verb,
           path: attributes[:path],
           response_code: attributes.dig(:response, :code),
           response_body: JSON.parse(attributes.dig(:response, :body)),

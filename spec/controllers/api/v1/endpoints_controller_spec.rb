@@ -9,18 +9,6 @@ describe API::V1::EndpointsController, type: :controller do
     end
   end
 
-  shared_examples 'matches json schema' do |schema|
-    it 'matches json schema' do
-      expect(response).to match_response_schema(schema)
-    end
-  end
-
-  shared_examples 'returns correct status code' do |status_code|
-    it "returns a #{status_code} status code" do
-      expect(response.status).to eq(status_code)
-    end
-  end
-
   shared_examples 'returns an invalid field error' do |field|
     it 'returns validation error' do
       expect(response_json['errors'].first['title']).to eql("Invalid #{field}")
@@ -189,7 +177,6 @@ describe API::V1::EndpointsController, type: :controller do
     subject(:response) { delete :destroy, params: params }
     context 'when no matching endpoint is found' do
       before { params.merge!(id: '1') }
-      include_examples 'includes content type headers'
       include_examples 'matches json schema', 'errors'
       include_examples 'returns correct status code', 404
 

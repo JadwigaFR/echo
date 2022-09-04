@@ -2,7 +2,11 @@
 
 class SerializableEndpoint < JSONAPI::Serializable::Resource
   type 'endpoints'
-  attributes :verb, :path
+  attributes :verb
+
+  attribute :path do
+    "/#{@object.path}"
+  end
 
   attribute :response do
     {
