@@ -2,8 +2,7 @@
 
 module API
   class DynamicEndpointsController < ApplicationController
-    before_action :find_endpoint
-    before_action :set_headers
+    before_action :find_endpoint, :set_headers
 
     def dispatch_request
       render json: @endpoint.response_body, status: @endpoint.response_code
@@ -21,7 +20,7 @@ module API
       verb = request.request_method
       path = params[:path]
 
-      @endpoint = Endpoint.find_by!(path:, verb:)
+      @endpoint = Endpoint.find_by!(path: path, verb: verb)
     end
 
     def record_not_found

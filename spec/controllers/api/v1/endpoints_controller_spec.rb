@@ -12,7 +12,7 @@ describe API::V1::EndpointsController, type: :controller do
   end
 
   shared_examples 'returns an invalid field error' do |field|
-    it 'returns validation error' do
+    it "returns a validation error for #{field}" do
       expect(response_json['errors'].first['title']).to eql("Invalid #{field}")
     end
   end
@@ -22,7 +22,7 @@ describe API::V1::EndpointsController, type: :controller do
       "data": {
         "type": 'endpoints',
         "attributes": {
-          "verb": 'GET',
+          "verb": 'get',
           "path": '/greeting',
           "response": {
             "code": 200,
@@ -51,6 +51,7 @@ describe API::V1::EndpointsController, type: :controller do
     context 'when there are endpoints to list' do
       include_examples 'matches json schema', 'endpoints'
       include_examples 'returns correct status code', 200
+
       it 'returns all the endpoints' do
         create(:endpoint)
         create(:endpoint, :post)
@@ -62,7 +63,7 @@ describe API::V1::EndpointsController, type: :controller do
   end
 
   describe '#create' do
-    subject(:response) { post :create, params: }
+    subject(:response) { post :create, params: params}
 
     include_examples 'includes content type headers'
     include_examples 'invalid authentication'
@@ -110,6 +111,10 @@ describe API::V1::EndpointsController, type: :controller do
         include_examples 'matches json schema', 'errors'
         include_examples 'returns an invalid field error', 'verb'
         include_examples 'returns correct status code', 400
+
+        it 'doesn\'t create a new endpoint' do
+          expect { response }.not_to change(Endpoint, :count)
+        end
       end
 
       context 'when response_code is invalid' do
@@ -117,6 +122,10 @@ describe API::V1::EndpointsController, type: :controller do
         include_examples 'matches json schema', 'errors'
         include_examples 'returns an invalid field error', 'response_code'
         include_examples 'returns correct status code', 400
+
+        it 'doesn\'t create a new endpoint' do
+          expect { response }.not_to change(Endpoint, :count)
+        end
       end
 
       context 'when response_code is missing' do
@@ -124,6 +133,10 @@ describe API::V1::EndpointsController, type: :controller do
         include_examples 'matches json schema', 'errors'
         include_examples 'returns an invalid field error', 'response_code'
         include_examples 'returns correct status code', 400
+
+        it 'doesn\'t create a new endpoint' do
+          expect { response }.not_to change(Endpoint, :count)
+        end
       end
 
       context 'when response_code is missing' do
@@ -131,6 +144,10 @@ describe API::V1::EndpointsController, type: :controller do
         include_examples 'matches json schema', 'errors'
         include_examples 'returns an invalid field error', 'verb'
         include_examples 'returns correct status code', 400
+
+        it 'doesn\'t create a new endpoint' do
+          expect { response }.not_to change(Endpoint, :count)
+        end
       end
     end
   end
@@ -138,8 +155,8 @@ describe API::V1::EndpointsController, type: :controller do
   describe '#update' do
     subject(:response) { put :update, params: }
     context 'when no matching endpoint is found' do
-      include_examples 'includes content type headers'
       before { params.merge!(id: '1') }
+      include_examples 'includes content type headers'
       include_examples 'matches json schema', 'errors'
       include_examples 'returns correct status code', 404
 
@@ -153,9 +170,11 @@ describe API::V1::EndpointsController, type: :controller do
       before { params.merge!(id: endpoint.id) }
       include_examples 'invalid authentication'
       include_examples 'includes content type headers'
+
       context 'with valid params' do
         include_examples 'matches json schema', 'endpoint'
         include_examples 'returns correct status code', 200
+
         it 'updates the endpoint\'s attributes' do
           response
 
@@ -182,6 +201,7 @@ describe API::V1::EndpointsController, type: :controller do
 
   describe '#destroy' do
     subject(:response) { delete :destroy, params: }
+
     context 'when no matching endpoint is found' do
       before { params.merge!(id: '1') }
       include_examples 'invalid authentication'
@@ -197,6 +217,7 @@ describe API::V1::EndpointsController, type: :controller do
       let!(:endpoint) { create(:endpoint) }
       before { params.merge!(id: endpoint.id) }
       include_examples 'returns correct status code', 204
+
       it 'destroys the endpoint' do
         endpoint_id = endpoint.id
         response

@@ -13,7 +13,7 @@ Given more time I would:
 ### Dependencies
 - ruby 3.1.2
 - rails 7.0.3
-- postgresl
+- postgresql
 
 ### Get the application running
 - Install dependencies
@@ -66,7 +66,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
   <markdown>
 #### Request
 
-    GET /endpoints HTTP/1.1
+    GET v1/endpoints HTTP/1.1
     Accept: application/vnd.api+json
 
 #### Response
@@ -99,7 +99,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
   <markdown>
 #### Request
 
-    POST /endpoints HTTP/1.1
+    POST v1/endpoints HTTP/1.1
     Content-Type: application/vnd.api+json
     Accept: application/vnd.api+json
 
@@ -121,7 +121,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
 #### Response
 
     HTTP/1.1 201 Created
-    Location: http://example.com/greeting
+    Location: http://localhost:3000/greeting
     Content-Type: application/vnd.api+json
 
     {
@@ -147,7 +147,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
   <markdown>
 #### Request
 
-    PATCH /endpoints/12345 HTTP/1.1
+    PATCH v1/endpoints/12345 HTTP/1.1
     Content-Type: application/vnd.api+json
     Accept: application/vnd.api+json
 
@@ -196,7 +196,7 @@ e.g. `"Bearer asdwvwq-wer-xc4-34534-12312"`
   <markdown>
 #### Request
 
-    DELETE /endpoints/12345 HTTP/1.1
+    DELETE v1/endpoints/12345 HTTP/1.1
     Accept: application/vnd.api+json
 
 #### Response
@@ -213,7 +213,7 @@ problem, the api will provide an error response.
 
 #### Request
 
-    DELETE /endpoints/1234567890 HTTP/1.1
+    DELETE v1/endpoints/1234567890 HTTP/1.1
     Accept: application/vnd.api+json
 
 #### Response
@@ -255,29 +255,29 @@ problem, the api will provide an error response.
 
 #### 2. Client creates an endpoint
 
-    > POST /endpoints HTTP/1.1
-    > Content-Type: application/vnd.api+json
-    > Accept: application/vnd.api+json
-    >
-    > {
-    >     "data": {
-    >         "type": "endpoints",
-    >         "attributes": {
-    >             "verb": "GET",
-    >             "path": "/hello",
-    >             "response": {
-    >                 "code": 200,
-    >                 "headers": {
-    >                     "Content-Type": "application/json"
-    >                 },
-    >                 "body": "\"{ \"message\": \"Hello, world\" }\""
-    >             }
-    >         }
-    >     }
-    > }
+    POST /endpoints HTTP/1.1
+    Content-Type: application/vnd.api+json
+    Accept: application/vnd.api+json
+    
+    {
+         "data": {
+             "type": "endpoints",
+             "attributes": {
+                 "verb": "GET",
+                 "path": "/hello",
+                 "response": {
+                     "code": 200,
+                     "headers": {
+                         "Content-Type": "application/json"
+                     },
+                     "body": "\"{ \"message\": \"Hello, world\" }\""
+                 }
+             }
+         }
+     }
 
     HTTP/1.1 201 Created
-    Location: http://example.com/hello
+    Location: http://localhost:3000/hello
     Content-Type: application/vnd.api+json
 
     {
@@ -300,8 +300,8 @@ problem, the api will provide an error response.
 
 #### 3. Client requests the recently created endpoint
 
-    > GET /hello HTTP/1.1
-    > Accept: application/json
+    GET /hello HTTP/1.1
+    Accept: application/json
 
     HTTP/1.1 200 OK
     Content-Type: application/json
@@ -311,9 +311,6 @@ problem, the api will provide an error response.
 #### 4. Client requests the endpoint on the same path, but with different HTTP verb
 
 The server responds with HTTP 404 because only `GET /hello` endpoint is defined.
-
-NOTE: if you could imagine different behavior from the server, feel free
-to propose it in your solution.
 
     > POST /hello HTTP/1.1
     > Accept: application/vnd.api+json
