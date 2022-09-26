@@ -1,14 +1,5 @@
 # README
 
-This api has been created to fulfill Babbel's coding challenge. See `echo.md` for requirements.
-It was a fun challenge to fulfill!
-
-Given more time I would:
-- add tests for the service
-- add proper api documentation with swagger, re-using the json schema files used for schema validation
-- dockerize the application
-- investigate how to handle less common HTTP verb (CONNECT OPTIONS TRACE)
-
 ## How to run the application
 ### Dependencies
 - ruby 3.1.2
